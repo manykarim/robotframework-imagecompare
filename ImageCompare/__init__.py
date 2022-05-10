@@ -1,0 +1,1 @@
+from .imagecompare import ImageCompare
