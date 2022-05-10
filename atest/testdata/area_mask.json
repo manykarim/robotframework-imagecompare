@@ -1,0 +1,16 @@
+[
+    {
+		"page": "all",
+		"name": "Job ID",
+		"type": "area",
+		"location": "top",
+		"percent":	10
+	},
+	{
+		"page": "all",
+		"name": "Job ID",
+		"type": "area",
+		"location": "bottom",
+		"percent":	10
+	}
+]
