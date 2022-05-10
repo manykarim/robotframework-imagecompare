@@ -6,6 +6,8 @@ Supports image files like .png and .jpg.
 
 Image Parts can be ignored via simple coordinate masks or area masks.
 
+See [Keyword Documentation](https://manykarim.github.io/robotframework-imagecompare/imagecompare.html) for more information.
+
 ## Install robotframework-imagecompare
 
 ### Installation via `pip`
