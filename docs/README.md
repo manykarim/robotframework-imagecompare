@@ -1,3 +1,4 @@
+
 # ImageCompare Library for Robot Framework®
 
 A library for simple screenshot comparison.
@@ -18,7 +19,7 @@ Check the `/atest/Compare.robot` test suite for some examples.
 ### Testing with [Robot Framework](https://robotframework.org)
 ```RobotFramework
 *** Settings ***
-Library    DocTest.VisualTest
+Library    ImageCompare
 
 *** Test Cases ***
 Compare two Images and highlight differences
@@ -29,7 +30,7 @@ Compare two Images and highlight differences
 
 ```RobotFramework
 *** Settings ***
-Library    DocTest.VisualTest
+Library    ImageCompare
 
 *** Test Cases ***
 Compare two Images and ignore parts by using masks
@@ -68,5 +69,4 @@ Compare two PDF Docments and ignore parts by using masks
     }
 ]
 ```
-
 ## More info will be added soon

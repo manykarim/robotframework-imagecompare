@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "robotframework-imagecompare"
-version = "0.1.0"
+version = "0.1.1"
 description = "A Robot Framework Library for image comparisons"
 authors = ["Many Kasiriha <many.kasiriha@dbschenker.com>"]
 license = "Apache 2.0"
