@@ -7,6 +7,8 @@ license = "Apache 2.0"
 packages = [
     { include = "ImageCompare" },
 ]
+readme = "./docs/README.md"
+homepage = "https://github.com/manykarim/robotframework-imagecompare"
 
 [tool.poetry.dependencies]
 python = "^3.8"
