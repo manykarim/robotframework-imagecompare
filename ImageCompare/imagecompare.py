@@ -83,7 +83,7 @@ import os
 import uuid
 import numpy as np
 from pathlib import Path
-from robot.libraries.BuiltIn import BuiltIn
+from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
 import re
 from concurrent import futures
 from robot.api.deco import keyword, library
@@ -113,19 +113,6 @@ class ImageCompare(object):
         self.screenshot_format = kwargs.pop('screenshot_format', 'jpg')
         if not (self.screenshot_format == 'jpg' or self.screenshot_format == 'png'):
              self.screenshot_format == 'jpg'
-
-        built_in = BuiltIn()
-        try:
-            self.OUTPUT_DIRECTORY = built_in.get_variable_value('${OUTPUT DIR}')
-            self.reference_run = built_in.get_variable_value('${REFERENCE_RUN}', False)
-            self.PABOTQUEUEINDEX = built_in.get_variable_value('${PABOTQUEUEINDEX}')
-            os.makedirs(self.OUTPUT_DIRECTORY/self.SCREENSHOT_DIRECTORY, exist_ok=True)
-        except:
-            print("Robot Framework is not running")
-            self.OUTPUT_DIRECTORY = Path.cwd()
-            os.makedirs(self.OUTPUT_DIRECTORY / self.SCREENSHOT_DIRECTORY, exist_ok=True)
-            self.reference_run = False
-            self.PABOTQUEUEINDEX = None
     
     @keyword    
     def compare_images(self, reference_image, test_image, **kwargs):
@@ -156,8 +143,9 @@ class ImageCompare(object):
         placeholder_file = kwargs.pop('placeholder_file', None)
         mask = kwargs.pop('mask', None)
         self.DPI = int(kwargs.pop('DPI', self.DPI))
+        reference_run = BuiltIn().get_variable_value('${REFERENCE_RUN}', False)
 
-        if self.reference_run and (os.path.isfile(test_image) == True):
+        if reference_run and (os.path.isfile(test_image) == True):
             shutil.copyfile(test_image, reference_image)
             print('A new reference file was saved: {}'.format(reference_image))
             return
@@ -240,20 +228,33 @@ class ImageCompare(object):
 
     def add_screenshot_to_log(self, image, suffix):
         screenshot_name = str(str(uuid.uuid1()) + suffix + '.{}'.format(self.screenshot_format))
-        
-        if self.PABOTQUEUEINDEX is not None:
-            rel_screenshot_path = str(self.SCREENSHOT_DIRECTORY / '{}-{}'.format(self.PABOTQUEUEINDEX, screenshot_name))
+        PABOTQUEUEINDEX = BuiltIn().get_variable_value('${PABOTQUEUEINDEX}', None)
+        if PABOTQUEUEINDEX is not None:
+            rel_screenshot_path = str(self.SCREENSHOT_DIRECTORY / '{}-{}'.format(PABOTQUEUEINDEX, screenshot_name))
         else:
             rel_screenshot_path = str(self.SCREENSHOT_DIRECTORY / screenshot_name)
-            
-        abs_screenshot_path = str(self.OUTPUT_DIRECTORY/self.SCREENSHOT_DIRECTORY/screenshot_name)
-        
+        abs_screenshot_path = str(self.log_dir/self.SCREENSHOT_DIRECTORY/screenshot_name)
+        self._create_directory(abs_screenshot_path)
         if self.screenshot_format == 'jpg':
             cv2.imwrite(abs_screenshot_path, image, [int(cv2.IMWRITE_JPEG_QUALITY), 70])
         else:
             cv2.imwrite(abs_screenshot_path, image)
-
         print("*HTML* "+ "<a href='" + rel_screenshot_path + "' target='_blank'><img src='" + rel_screenshot_path + "' style='width:50%; height: auto;'/></a>")
+
+    def _create_directory(self, path):
+        target_dir = os.path.dirname(path)
+        if not os.path.exists(target_dir):
+            os.makedirs(target_dir)
+    
+    @property
+    def log_dir(self):
+        try:
+            logfile = BuiltIn().get_variable_value("${LOG FILE}")
+            if logfile == "NONE":
+                return BuiltIn().get_variable_value("${OUTPUTDIR}")
+            return os.path.dirname(logfile)
+        except RobotNotRunningError:
+            return os.getcwd()
 
     def overlay_two_images(self, image, overlay, ignore_color=[255,255,255]):
         ignore_color = np.asarray(ignore_color)
